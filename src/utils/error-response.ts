@@ -1,8 +1,8 @@
 export class ErrorResponse extends Error {
-    public constructor (
+    public constructor(
         public code: number,
         public message: string,
-        public data?: any
+        public data?: any,
     ) {
         super(message);
     }

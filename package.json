@@ -1,5 +1,5 @@
 {
-  "name": "skillinventory",
+  "name": "korahtecthnicaltest",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -23,11 +23,11 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run test && npm run prettier-format && npm run lint"
+      "pre-commit": "npm run prettier-format && npm run lint"
     }
   },
   "keywords": [],
-  "author": "",
+  "author": "Tosin Akinyele",
   "license": "ISC",
   "dependencies": {
     "@babel/preset-env": "^7.13.8",
