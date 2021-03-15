@@ -1,14 +1,22 @@
 import { Sequelize } from 'sequelize';
+import { createUniqueSlug, createEllipsis } from '../utils/modifier';
 import { UserFactory, UserStatic } from './user-model';
-import { SkillsFactory, SkillsStatic } from './skills-model';
-import { SkillsTypeFactory, SkillsTypeStatic } from './skills-type-model';
+import { QuestionFactory, QuestionStatic } from './question-model';
+import { AnswerFactory, AnswerStatic } from './answer-model';
+import {
+    QuestionRatingFactory,
+    QuestionRatingStatic,
+} from './question-rating-model';
+import { AnswerRatingFactory, AnswerRatingStatic } from './answer-rating-model';
 import { dbEnv as envConfig } from '../config';
 
 export interface DB {
     dbConfig: Sequelize;
     User: UserStatic;
-    Skills: SkillsStatic;
-    SkillsType: SkillsTypeStatic;
+    Question: QuestionStatic;
+    Answer: AnswerStatic;
+    QuestionRating: QuestionRatingStatic;
+    AnswerRating: AnswerRatingStatic;
 }
 
 export const dbConfig = new Sequelize(
@@ -29,16 +37,33 @@ export const dbConfig = new Sequelize(
 );
 
 const User = UserFactory(dbConfig);
-const Skills = SkillsFactory(dbConfig);
-const SkillsType = SkillsTypeFactory(dbConfig);
+const Question = QuestionFactory(dbConfig);
+const Answer = AnswerFactory(dbConfig);
+const QuestionRating = QuestionRatingFactory(dbConfig);
+const AnswerRating = AnswerRatingFactory(dbConfig);
 
-SkillsType.belongsTo(Skills);
-SkillsType.belongsToMany(User, { through: 'users_has_skills' });
-User.belongsToMany(SkillsType, { through: 'users_has_skills' });
+Question.belongsTo(User);
+Answer.belongsTo(User);
+Answer.belongsTo(Question);
+Question.hasMany(Answer);
+QuestionRating.belongsTo(Question);
+Question.hasOne(QuestionRating);
+AnswerRating.belongsTo(Answer);
+Answer.hasOne(AnswerRating);
+
+Question.beforeCreate(newQuestion => {
+    newQuestion.setDataValue('slug', createUniqueSlug(newQuestion.title));
+    newQuestion.setDataValue(
+        'description',
+        createEllipsis(newQuestion.text, 200),
+    );
+});
 
 export const db: DB = {
     dbConfig,
     User,
-    Skills,
-    SkillsType,
+    Question,
+    Answer,
+    QuestionRating,
+    AnswerRating,
 };

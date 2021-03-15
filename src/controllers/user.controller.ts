@@ -2,6 +2,7 @@
 import { NextFunction, Request, Response } from 'express';
 import {
     BAD_REQUEST,
+    CREATED,
     getStatusText,
     INTERNAL_SERVER_ERROR,
     NOT_FOUND,
@@ -73,12 +74,36 @@ export class UserController {
 
             user.password = await encryptPassword(user.password, 10);
 
-            const success = await this.userService.save(user);
+            const stored = await this.userService.save(user);
+
+            if (stored === null) {
+                logger.error(`error while saving user with ${user.email}`);
+                return apiResponse(
+                    res,
+                    failedResponse(
+                        `error while saving user with ${user.email}`,
+                    ),
+                    BAD_REQUEST,
+                );
+            }
+
+            const toSend = {
+                id: stored.id,
+                email: stored.email,
+                firstName: stored.firstName,
+                middleName: stored.middleName,
+                lastName: stored.lastName,
+            };
+
+            const token = createToken(toSend);
 
             return apiResponse(
                 res,
-                successResponse(getStatusText(success)),
-                success,
+                successResponse({
+                    ...toSend,
+                    token,
+                }),
+                CREATED,
             );
         } catch (error) {
             logger.error('error while register', { meta: { ...error } });
@@ -143,7 +168,7 @@ export class UserController {
             const toSend = {
                 id: stored.id,
                 email: stored.email,
-                name: stored.name,
+                firstName: stored.firstName,
                 middleName: stored.middleName,
                 lastName: stored.lastName,
             };
@@ -154,7 +179,7 @@ export class UserController {
                 res,
                 successResponse({
                     ...toSend,
-                    token: `Bearer ${token}`,
+                    token,
                 }),
                 OK,
             );

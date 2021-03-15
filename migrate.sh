@@ -11,9 +11,10 @@ echo ""
 
 echo " -> Step 1/4: Compiling migration scripts."
 echo ""
-for filename in ./src/db/migrations/*.ts; do
-tsc -t es5 --outDir ./build-migrations $filename
-done
+# for filename in ./src/db/migrations/*.ts; do
+# tsc -t es5 --outDir ./build-migrations $filename
+# done
+tsc -outDir ./build-migrations/db/migrations ./src/db/migrations/*.ts
 echo ""
 echo " -> Compilation completed."
 echo ""

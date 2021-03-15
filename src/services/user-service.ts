@@ -1,5 +1,4 @@
 import Bluebird from 'bluebird';
-import { CREATED } from 'http-status-codes';
 import { Op } from 'sequelize';
 import { UserRegister } from '../types';
 import { DB } from '../models/index';
@@ -42,20 +41,22 @@ export class UserService {
      * @public
      * @method {getUserByEmail}
      * @memberof {UserService}
-     * @param {strin} email
-     * @returns {number} returns 201 if the user is created and 204 if it was updated
+     * @param {object} user
+     * @returns {object} userobject
      */
-    public async save(user: UserRegister): Promise<number> {
+    public async save(user: UserRegister): Bluebird<UserModel | null> {
+        let userValue;
         if (user.id !== undefined) {
             await this.db.User.update(user, {
                 where: { [Op.and]: { id: user.id, email: user.email } },
+                returning: true,
             });
+            userValue = await this.db.User.findByPk(user.id);
+            return userValue;
         }
 
-        await this.db.User.create(user);
-        return CREATED;
-
-        // return NO_CONTENT;
+        userValue = await this.db.User.create(user);
+        return userValue;
     }
 
     public getAllUsers(): Bluebird<{ rows: UserModel[]; count: number }> {

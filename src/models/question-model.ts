@@ -1,52 +1,53 @@
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 import { BuildOptions, DataTypes, Model, Sequelize } from 'sequelize';
 
-export interface UserAttributes {
+export interface QuestionAttributes {
     id: number;
-    name: string;
-    email: string;
-    password: string;
-    middleName?: string;
-    lastName: string;
-    active: boolean;
+    title: string;
+    slug: string;
+    description: string;
+    text: string;
+    userId: number;
     createdAt?: Date;
     updatedAt?: Date;
 }
-export interface UserModel extends Model<UserAttributes>, UserAttributes {
+export interface QuestionModel
+    extends Model<QuestionAttributes>,
+        QuestionAttributes {
     [x: string]: any;
 }
-export class User extends Model<UserModel, UserAttributes> {}
+export class Question extends Model<QuestionModel, QuestionAttributes> {}
 
-export type UserStatic = typeof Model & {
-    new (values?: object, options?: BuildOptions): UserModel;
+export type QuestionStatic = typeof Model & {
+    new (values?: object, options?: BuildOptions): QuestionModel;
 };
 
-export function UserFactory(sequelize: Sequelize): UserStatic {
-    return <UserStatic>sequelize.define('User', {
+export function QuestionFactory(sequelize: Sequelize): QuestionStatic {
+    return <QuestionStatic>sequelize.define('Question', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        email: {
+        slug: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
         },
-        firstName: {
+        title: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        password: {
-            type: DataTypes.STRING,
+        description: {
+            type: DataTypes.TEXT,
             allowNull: false,
         },
-        middleName: {
-            type: DataTypes.STRING,
-            allowNull: true,
+        text: {
+            type: DataTypes.TEXT,
+            allowNull: false,
         },
-        lastName: {
-            type: DataTypes.STRING,
+        userId: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
         createdAt: {
