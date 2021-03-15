@@ -9,5 +9,5 @@
     "semi": true,
     "tabWidth": 4,
     "useTabs": false,
-    "trailingComma": "all",
+    "trailingComma": "all"
 }

@@ -14,7 +14,7 @@ echo ""
 # for filename in ./src/db/migrations/*.ts; do
 # tsc -t es5 --outDir ./build-migrations $filename
 # done
-tsc -outDir ./build-migrations/db/migrations ./src/db/migrations/*.ts
+tsc -outDir ./build-migrations/ ./src/db/migrations/*.ts
 echo ""
 echo " -> Compilation completed."
 echo ""
