@@ -28,18 +28,17 @@ export class UserService {
      * @param {string} email
      * @returns {Bluebird<UserModel | null>} user object incase the email exists
      */
-    public getUserByEmail(email: string): Bluebird<UserModel | null> {
-        return this.db.User.findOne({
+    public async getUserByEmail(email: string): Bluebird<UserModel | null> {
+        const saved = await this.db.User.findOne({
             where: { email },
-        }).then(saved => {
-            return saved;
         });
+        return saved;
     }
 
     /**
      * creates a new user or updates an existing one
      * @public
-     * @method {getUserByEmail}
+     * @method {save}
      * @memberof {UserService}
      * @param {object} user
      * @returns {object} userobject
@@ -59,9 +58,10 @@ export class UserService {
         return userValue;
     }
 
-    public getAllUsers(): Bluebird<{ rows: UserModel[]; count: number }> {
-        return this.db.User.findAndCountAll({
-            attributes: ['id', 'firstName', 'middleName', 'lastName'],
-        }).then(result => result);
+    public async getAllUsers(): Bluebird<{ rows: UserModel[]; count: number }> {
+        const result = await this.db.User.findAndCountAll({
+            attributes: ['id', 'firstName', 'middleName', 'lastName', 'email'],
+        });
+        return result;
     }
 }

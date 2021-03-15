@@ -14,7 +14,7 @@ export interface UserRegister {
     id?: number;
     email: string;
     password: string;
-    password2: string;
+    password2?: string;
     firstName: string;
     middleName: string;
     lastName: string;
@@ -94,3 +94,16 @@ export interface EndPoint {
 
 export const EMAIL_EXISTS = 1;
 export type EMAIL_EXISTS = typeof EMAIL_EXISTS;
+
+export interface QuestionParams {
+    id?: number;
+    title: string;
+    slug?: string;
+    description?: string;
+    text: string;
+    userId?: number;
+}
+
+export interface AuthRequest extends Request {
+    user?: string | object;
+}

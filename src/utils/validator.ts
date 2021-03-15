@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { isAlpha, isAlphanumeric, isEmail, isEmpty, isLength } from 'validator';
-import { JwtError, LoginCredentials, UserRegister } from '../types';
+import {
+    JwtError,
+    LoginCredentials,
+    QuestionParams,
+    UserRegister,
+} from '../types';
 import { logger } from './logger';
 
 /**
@@ -138,4 +143,29 @@ export function removeEmpty(obj: object): any {
             }),
             {},
         );
+}
+
+/**
+ * validates if the client input to save a question user is valid
+ * @param {QuestionParams} question Question Model
+ * @returns {Array} array of errors found
+ */
+export function validateCreateQuestion(question: QuestionParams) {
+    const errors: any = [];
+
+    const { title = '', text = '' } = question;
+
+    if (isEmpty(title)) {
+        errors.push({ title: 'title is required', code: 1 });
+    } else if (!isLength(title, { min: 5, max: 50 })) {
+        errors.push({ title: 'title should be from 5 to 15 characters long' });
+    }
+
+    if (isEmpty(text)) {
+        errors.push({ text: 'question text is Required' });
+    } else if (!isLength(text, { min: 50, max: 200 })) {
+        errors.push({ name: 'text cannot be less than 50 chars' });
+    }
+
+    return errors;
 }
