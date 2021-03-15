@@ -37,6 +37,7 @@ export function routes(db: DB) {
         [validateQuestionInput],
         questionController.createQuestion,
     );
+    api.get('/question', questionController.getAllQuestions);
 
     return api;
 }

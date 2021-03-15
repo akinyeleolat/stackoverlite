@@ -156,8 +156,8 @@ export function validateCreateQuestion(question: QuestionParams) {
     const { title = '', text = '' } = question;
 
     if (isEmpty(title)) {
-        errors.push({ title: 'title is required', code: 1 });
-    } else if (!isLength(title, { min: 5, max: 50 })) {
+        errors.push({ title: 'title is required' });
+    } else if (!isLength(title, { min: 50, max: 100 })) {
         errors.push({ title: 'title should be from 5 to 15 characters long' });
     }
 

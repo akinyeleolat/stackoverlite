@@ -18,6 +18,7 @@ import {
 } from '../utils/response';
 import { logger } from '../utils/logger';
 import { AuthRequest, QuestionParams, UserRegister } from '../types';
+import { createEllipsis, createUniqueSlug } from '../utils/modifier';
 
 /**
  * @description Question controller
@@ -33,6 +34,7 @@ export class QuestionController {
      */
     public constructor(private questionService: QuestionService) {
         this.createQuestion = this.createQuestion.bind(this);
+        this.getAllQuestions = this.getAllQuestions.bind(this);
     }
 
     /**
@@ -76,18 +78,56 @@ export class QuestionController {
                 );
             }
             const user = <UserRegister>req.user;
-            const questionData = { ...question, userId: user.id };
-            const newQuestion = await this.questionService.save(questionData);
+
+            question.userId = user.id;
+            question.slug = createUniqueSlug(question.title);
+            question.description = createEllipsis(question.text, 50);
+
+            const newQuestion = await this.questionService.save(question);
 
             return apiResponse(
                 res,
                 successResponse({
-                    ...newQuestion,
+                    ...newQuestion?.get(),
                 }),
                 CREATED,
             );
         } catch (error) {
             logger.error('error while creating question', {
+                meta: { ...error },
+            });
+            return apiResponse(
+                res,
+                failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+                INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * Gets all the users stored at the db
+     * @Get
+     * @async
+     * @public
+     * @method {getAllUsers}
+     * @memberologinf {UserController}
+     * @param {Request} req
+     * @param {Response} res
+     * @param {NextFunction} next
+     * @returns {Promise<Response>} a promise of EndPointResponse
+     */
+    public async getAllQuestions(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<Response> {
+        logger.info('getAllQuestions');
+        try {
+            const questions = await this.questionService.getAll();
+
+            return apiResponse(res, successResponse(questions), OK);
+        } catch (error) {
+            logger.error('error while getting all questions', {
                 meta: { ...error },
             });
             return apiResponse(
