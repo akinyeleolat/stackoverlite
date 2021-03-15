@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { isAlpha, isAlphanumeric, isEmail, isEmpty, isLength } from 'validator';
 import {
+    AnswerParams,
     JwtError,
     LoginCredentials,
     QuestionParams,
@@ -165,6 +166,31 @@ export function validateCreateQuestion(question: QuestionParams) {
         errors.push({ text: 'question text is Required' });
     } else if (!isLength(text, { min: 50, max: 200 })) {
         errors.push({ name: 'text cannot be less than 50 chars' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the client input to save a answer is valid
+ * @param {AnswerParams} answer Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateCreateAnswer(answerInput: AnswerParams) {
+    const errors: any = [];
+
+    const { answer, questionId } = answerInput;
+
+    if (isEmpty(answer)) {
+        errors.push({ answer: 'answer input is required' });
+    } else if (!isLength(answer, { min: 50, max: 200 })) {
+        errors.push({ name: 'answer cannot be less than 50 chars' });
+    }
+
+    if (isEmpty(questionId.toString())) {
+        errors.push({ questionId: 'question id is missing' });
+    } else if (!isNumber(questionId)) {
+        errors.push({ questionId: 'Question id supplied is not number' });
     }
 
     return errors;

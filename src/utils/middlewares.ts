@@ -11,6 +11,7 @@ import { logger } from './logger';
 import { apiResponse, failedResponse } from './response';
 import {
     removeEmpty,
+    validateCreateAnswer,
     validateCreateQuestion,
     validateLogin,
     validateUserRegistration,
@@ -132,6 +133,34 @@ export function validateQuestionInput(
         req.body = removeEmpty(req.body);
 
         const valid = validateCreateQuestion(req.body);
+
+        if (valid.length > 0) {
+            apiResponse<FailedResponse>(
+                res,
+                failedResponse(valid),
+                BAD_REQUEST,
+            );
+        } else {
+            next();
+        }
+    } catch (error) {
+        apiResponse<FailedResponse>(
+            res,
+            failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+            INTERNAL_SERVER_ERROR,
+        );
+    }
+}
+
+export function validateAnswerInput(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    try {
+        req.body = removeEmpty(req.body);
+
+        const valid = validateCreateAnswer(req.body);
 
         if (valid.length > 0) {
             apiResponse<FailedResponse>(

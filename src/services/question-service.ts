@@ -3,10 +3,6 @@ import { DB } from '../models';
 import { Op } from 'sequelize';
 import { QuestionParams } from '../types';
 import { QuestionModel } from '../models/question-model';
-import { AnswerModel } from '../models/answer-model';
-import { QuestionRatingModel } from '../models/question-rating-model';
-import { AnswerRatingModel } from '../models/answer-rating-model';
-import { UserModel } from '../models/user-model';
 
 /**
  * @description Question service

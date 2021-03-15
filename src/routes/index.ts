@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { Router } from 'express';
 import {
-    // SkillsController,
     UserController,
+    AnswerController,
+    QuestionController,
 } from '../controllers';
-import { QuestionController } from '../controllers/question.controller';
+
 import { DB } from '../models/index';
+import { AnswerService, QuestionService, UserService } from '../services';
 import {
-    QuestionService,
-    // SkillsService,
-    UserService,
-} from '../services';
-import {
+    validateAnswerInput,
     validateQuestionInput,
     validateRegister,
     validatingLogin,
@@ -23,7 +21,7 @@ export function routes(db: DB) {
 
     const userController = new UserController(new UserService(db));
     const questionController = new QuestionController(new QuestionService(db));
-    // const skillsController = new SkillsController(new SkillsService(db));
+    const answerController = new AnswerController(new AnswerService(db));
 
     api.post('/auth/signup', [validateRegister], userController.register);
     api.post('/auth/login', [validatingLogin], userController.login);
@@ -38,6 +36,7 @@ export function routes(db: DB) {
         questionController.createQuestion,
     );
     api.get('/question', questionController.getAllQuestions);
+    api.post('./answer', [validateAnswerInput], answerController.createAnswer);
 
     return api;
 }
