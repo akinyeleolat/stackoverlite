@@ -29,6 +29,7 @@ export class QuestionService {
         // this.getSkillsByType = this.getSkillsByType.bind(this);
         this.save = this.save.bind(this);
         this.getQuestionByTitle = this.getQuestionByTitle.bind(this);
+        this.getQuestionById = this.getQuestionById.bind(this);
     }
 
     /**
@@ -106,6 +107,19 @@ export class QuestionService {
         const saved = await this.db.Question.findOne({
             where: { title },
         });
+        return saved;
+    }
+
+    /**
+     * looks for a question with `question` by `id`
+     * @public
+     * @method {getQuestionById}
+     * @memberof {QuestionService}
+     * @param {number} id question id
+     * @returns {Bluebird<QuestionModel | null>} answer object by id
+     */
+    public async getQuestionById(id: number): Bluebird<QuestionModel | null> {
+        const saved = await this.db.Question.findByPk(id);
         return saved;
     }
 }

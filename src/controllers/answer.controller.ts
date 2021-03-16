@@ -5,6 +5,7 @@ import {
     CREATED,
     getStatusText,
     INTERNAL_SERVER_ERROR,
+    NOT_FOUND,
     OK,
 } from 'http-status-codes';
 
@@ -17,6 +18,7 @@ import {
 } from '../utils/response';
 import { logger } from '../utils/logger';
 import { AuthRequest, AnswerParams, UserCredentials } from '../types';
+import { NOTFOUND } from 'dns';
 
 /**
  * @description Answer controller
@@ -47,6 +49,86 @@ export class AnswerController {
      * @returns {Promise<Response>} a promise of EndPointResponse
      */
     public async createAnswer(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction,
+    ): Promise<Response> {
+        try {
+            const answerValue = <AnswerParams>req.body;
+            if (!req.user) {
+                logger.error(`empty userId`);
+                return apiResponse(
+                    res,
+                    failedResponse('empty userId'),
+                    BAD_REQUEST,
+                );
+            }
+            const user = <UserCredentials>req.user;
+
+            answerValue.userId = user.id;
+
+            const checkAnswerExist = await this.answerService.getAnswerByUser(
+                answerValue.answer,
+                answerValue.userId,
+            );
+            if (checkAnswerExist !== null) {
+                logger.error(`answer already exists`);
+                return apiResponse(
+                    res,
+                    failedResponse('answer already exists'),
+                    BAD_REQUEST,
+                );
+            }
+
+            const checkQuestionExist = await this.answerService.getQuestionById(
+                answerValue.questionId,
+            );
+
+            if (!checkQuestionExist) {
+                logger.error(`question not found`);
+                return apiResponse(
+                    res,
+                    failedResponse('question not found'),
+                    NOT_FOUND,
+                );
+            }
+
+            logger.info('create answer for  question');
+
+            const newAnswer = await this.answerService.save(answerValue);
+
+            return apiResponse(
+                res,
+                successResponse({
+                    ...newAnswer?.get(),
+                }),
+                CREATED,
+            );
+        } catch (error) {
+            logger.error('error while creating answer', {
+                meta: { ...error },
+            });
+            return apiResponse(
+                res,
+                failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+                INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * update answer for question
+     * @Post
+     * @async
+     * @public
+     * @method {updateAnswer}
+     * @memberof {AnswerController}
+     * @param {Request} req
+     * @param {Response} res
+     * @param {NextFunction} next
+     * @returns {Promise<Response>} a promise of EndPointResponse
+     */
+    public async updateAnswer(
         req: AuthRequest,
         res: Response,
         next: NextFunction,

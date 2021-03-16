@@ -2,6 +2,7 @@ import Bluebird from 'bluebird';
 import { DB } from '../models';
 import { Op } from 'sequelize';
 import { AnswerModel } from '../models/answer-model';
+import { QuestionModel } from '../models/question-model';
 import { AnswerParams } from '../types';
 
 /**
@@ -27,6 +28,8 @@ export class AnswerService {
         this.db = db;
         this.save = this.save.bind(this);
         this.getAnswerByUser = this.getAnswerByUser.bind(this);
+        this.getAnswerById = this.getAnswerById.bind(this);
+        this.getQuestionById = this.getQuestionById.bind(this);
     }
 
     /**
@@ -70,6 +73,34 @@ export class AnswerService {
         const saved = await this.db.Answer.findOne({
             where: { answer, userId },
         });
+        return saved;
+    }
+
+    /**
+     * looks for a answer with `answer` by `id`
+     * @public
+     * @method {getAnswerById}
+     * @memberof {AnswerService}
+     * @param {number} id
+     * @returns {Bluebird<AnswerModel | null>} answer object by id
+     */
+    public async getAnswerById(id: number): Bluebird<AnswerModel | null> {
+        const saved = await this.db.Answer.findByPk(id);
+        return saved;
+    }
+
+    /**
+     * looks for a answer with `answer` by `id`
+     * @public
+     * @method {getAnswerById}
+     * @memberof {AnswerService}
+     * @param {number} id
+     * @returns {Bluebird<AnswerModel | null>} answer object by id
+     */
+    public async getQuestionById(
+        questionId: number,
+    ): Bluebird<QuestionModel | null> {
+        const saved = await this.db.Question.findByPk(questionId);
         return saved;
     }
 }
