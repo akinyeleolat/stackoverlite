@@ -6,6 +6,7 @@ import {
     LoginCredentials,
     QuestionParams,
     UserRegister,
+    AnswerStatus,
 } from '../types';
 import { logger } from './logger';
 
@@ -191,6 +192,43 @@ export function validateCreateAnswer(answerInput: AnswerParams) {
         errors.push({ questionId: 'question id is missing' });
     } else if (!isNumber(questionId)) {
         errors.push({ questionId: 'Question id supplied is not number' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the client input to update a answer is valid
+ * @param {AnswerParams} answer Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateUpdateAnswer(answerInput: AnswerParams) {
+    const errors: any = [];
+
+    const { answer = '', questionId, id, status } = answerInput;
+
+    if (answer && isEmpty(answer)) {
+        errors.push({ answer: 'answer input is empty' });
+    } else if (answer && !isLength(answer, { min: 50, max: 200 })) {
+        errors.push({ name: 'answer cannot be less than 50 chars' });
+    }
+
+    if (isEmpty(questionId.toString())) {
+        errors.push({ questionId: 'question id is missing' });
+    } else if (!isNumber(questionId)) {
+        errors.push({ questionId: 'Question id supplied is not number' });
+    }
+
+    if (id && isEmpty(id.toString())) {
+        errors.push({ id: 'answer id is missing' });
+    } else if (!isNumber(id)) {
+        errors.push({ id: 'answer id supplied is not number' });
+    }
+
+    if (status && isEmpty(status.toString())) {
+        errors.push({ status: 'answer status is missing' });
+    } else if (status && !Object.values(AnswerStatus).includes(status)) {
+        errors.push({ id: 'Invalid answer status' });
     }
 
     return errors;

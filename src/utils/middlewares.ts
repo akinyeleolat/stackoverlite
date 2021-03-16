@@ -15,6 +15,7 @@ import {
     validateCreateQuestion,
     validateLogin,
     validateUserRegistration,
+    validateUpdateAnswer,
 } from './validator';
 
 import { validateToken } from '../utils/passport';
@@ -161,6 +162,34 @@ export function validateAnswerInput(
         req.body = removeEmpty(req.body);
 
         const valid = validateCreateAnswer(req.body);
+
+        if (valid.length > 0) {
+            apiResponse<FailedResponse>(
+                res,
+                failedResponse(valid),
+                BAD_REQUEST,
+            );
+        } else {
+            next();
+        }
+    } catch (error) {
+        apiResponse<FailedResponse>(
+            res,
+            failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+            INTERNAL_SERVER_ERROR,
+        );
+    }
+}
+
+export function validateAnswerUpdate(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    try {
+        req.body = removeEmpty(req.body);
+
+        const valid = validateUpdateAnswer(req.body);
 
         if (valid.length > 0) {
             apiResponse<FailedResponse>(

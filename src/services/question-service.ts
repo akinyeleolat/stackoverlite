@@ -3,6 +3,7 @@ import { DB } from '../models';
 import { Op } from 'sequelize';
 import { QuestionParams } from '../types';
 import { QuestionModel } from '../models/question-model';
+import { AnswerModel } from '../models/answer-model';
 
 /**
  * @description Question service
@@ -44,27 +45,17 @@ export class QuestionService {
         const res = await this.db.Question.findAll({
             attributes: ['id', 'slug', 'title', 'text', 'description'],
             // include answer && user, question rating, answer rating, user
+            include: [
+                {
+                    all: true,
+                },
+            ],
+        });
+        res.forEach(value => {
+            delete value.User.dataValues.password;
         });
         return res;
     }
-
-    // /**
-    //  * Gets all skills type by skills id
-    //  * @public
-    //  * @method {getSkillsByType}
-    //  * @author Tosin
-    //  * @memberof {SkillsService}
-    //  * @param {number} idSkills
-    //  * @returns {SkillsTypeModel[]} skills by type
-    //  */
-    // public getSkillsByType(idSkills: number): Bluebird<SkillsTypeModel[]> {
-    //     return this.db.SkillsType.findAll({
-    //         attributes: ['id', 'name'],
-    //         where: { skillId: idSkills },
-    //     }).then((skills: SkillsTypeModel[]) => {
-    //         return skills;
-    //     });
-    // }
 
     /**
      * creates a new question or updates an existing one
@@ -120,6 +111,7 @@ export class QuestionService {
      */
     public async getQuestionById(id: number): Bluebird<QuestionModel | null> {
         const saved = await this.db.Question.findByPk(id);
+        console.log(saved && Object.keys(saved.__proto__));
         return saved;
     }
 }

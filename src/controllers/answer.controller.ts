@@ -17,8 +17,13 @@ import {
     successResponse,
 } from '../utils/response';
 import { logger } from '../utils/logger';
-import { AuthRequest, AnswerParams, UserCredentials } from '../types';
-import { NOTFOUND } from 'dns';
+import {
+    AuthRequest,
+    AnswerParams,
+    UserCredentials,
+    AnswerValue,
+    AnswerStatus,
+} from '../types';
 
 /**
  * @description Answer controller
@@ -117,7 +122,7 @@ export class AnswerController {
     }
 
     /**
-     * update answer for question
+     * update answer for question, user can update their own answer or accept other answer
      * @Post
      * @async
      * @public
@@ -134,7 +139,7 @@ export class AnswerController {
         next: NextFunction,
     ): Promise<Response> {
         try {
-            const answerValue = <AnswerParams>req.body;
+            const answerValue = <AnswerValue>req.body;
             if (!req.user) {
                 logger.error(`empty userId`);
                 return apiResponse(
@@ -143,35 +148,70 @@ export class AnswerController {
                     BAD_REQUEST,
                 );
             }
-            const user = <UserCredentials>req.user;
 
-            answerValue.userId = user.id;
-
-            const checkAnswerExist = await this.answerService.getAnswerByUser(
-                answerValue.answer,
-                answerValue.userId,
+            const checkQuestionExist = await this.answerService.getQuestionById(
+                answerValue.questionId,
             );
-            if (checkAnswerExist !== null) {
-                logger.error(`answer already exists`);
+
+            if (!checkQuestionExist) {
+                logger.error(`question not found`);
                 return apiResponse(
                     res,
-                    failedResponse('answer already exists'),
-                    BAD_REQUEST,
+                    failedResponse('question not found'),
+                    NOT_FOUND,
+                );
+            }
+            const existingAnswer = await this.answerService.getAnswerById(
+                answerValue.id,
+            );
+
+            if (!existingAnswer) {
+                logger.error(`answer not found`);
+                return apiResponse(
+                    res,
+                    failedResponse('answer not found'),
+                    NOT_FOUND,
                 );
             }
 
-            logger.info('create answer for  question');
+            if (!Object.values(AnswerStatus).includes(answerValue.status)) {
+                return apiResponse(
+                    res,
+                    failedResponse('Invalid answer status'),
+                    BAD_REQUEST,
+                );
+            }
+            const user = <UserCredentials>req.user;
 
-            const newAnswer = await this.answerService.save(answerValue);
+            let updatedAnswerValue;
+
+            if (user.id === answerValue.userId) {
+                logger.info('update answer for  question for user');
+                updatedAnswerValue = {
+                    ...existingAnswer,
+                    answer: answerValue.answer,
+                };
+            } else {
+                logger.info('accept user answer');
+                updatedAnswerValue = {
+                    ...existingAnswer,
+                    status: answerValue.status,
+                };
+            }
+
+            const updatedAnswer = await this.answerService.save(
+                updatedAnswerValue,
+            );
 
             return apiResponse(
                 res,
                 successResponse({
-                    ...newAnswer?.get(),
+                    ...updatedAnswer?.get(),
                 }),
-                CREATED,
+                OK,
             );
         } catch (error) {
+            console.log(error);
             logger.error('error while creating answer', {
                 meta: { ...error },
             });

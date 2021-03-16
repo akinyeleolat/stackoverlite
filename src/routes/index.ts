@@ -10,6 +10,7 @@ import { DB } from '../models/index';
 import { AnswerService, QuestionService, UserService } from '../services';
 import {
     validateAnswerInput,
+    validateAnswerUpdate,
     validateQuestionInput,
     validateRegister,
     validatingLogin,
@@ -37,6 +38,7 @@ export function routes(db: DB) {
     );
     api.get('/question', questionController.getAllQuestions);
     api.post('/answer', [validateAnswerInput], answerController.createAnswer);
+    api.patch('/answer', [validateAnswerUpdate], answerController.updateAnswer);
 
     return api;
 }

@@ -95,13 +95,25 @@ export interface AuthRequest extends Request {
     user?: string | object;
 }
 
+export enum AnswerStatus {
+    pending,
+    accepted,
+}
 export interface AnswerParams {
     id?: number;
     answer: string;
     userId: number;
     questionId: number;
+    status?: string;
 }
 
+export interface AnswerValue {
+    id: number;
+    answer: string;
+    userId: number;
+    questionId: number;
+    status: string;
+}
 export interface UserCredentials {
     id: number;
     email: string;
