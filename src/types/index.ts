@@ -105,6 +105,7 @@ export interface AnswerParams {
     userId: number;
     questionId: number;
     status?: string;
+    updatedAt?: number;
 }
 
 export interface AnswerValue {

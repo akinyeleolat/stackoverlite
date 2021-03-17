@@ -95,7 +95,7 @@ export class AnswerService {
      * @method {getAnswerById}
      * @memberof {AnswerService}
      * @param {number} id
-     * @returns {Bluebird<AnswerModel | null>} answer object by id
+     * @returns {Bluebird<QuestionModel | null>} answer object by id
      */
     public async getQuestionById(
         questionId: number,

@@ -39,6 +39,7 @@ export class AnswerController {
      */
     public constructor(private answerService: AnswerService) {
         this.createAnswer = this.createAnswer.bind(this);
+        this.updateAnswer = this.updateAnswer.bind(this);
     }
 
     /**
@@ -140,6 +141,7 @@ export class AnswerController {
     ): Promise<Response> {
         try {
             const answerValue = <AnswerValue>req.body;
+
             if (!req.user) {
                 logger.error(`empty userId`);
                 return apiResponse(
@@ -161,9 +163,10 @@ export class AnswerController {
                     NOT_FOUND,
                 );
             }
-            const existingAnswer = await this.answerService.getAnswerById(
+            const previousAnswerObj = await this.answerService.getAnswerById(
                 answerValue.id,
             );
+            const existingAnswer = <AnswerValue>previousAnswerObj?.get();
 
             if (!existingAnswer) {
                 logger.error(`answer not found`);
@@ -174,28 +177,42 @@ export class AnswerController {
                 );
             }
 
-            if (!Object.values(AnswerStatus).includes(answerValue.status)) {
-                return apiResponse(
-                    res,
-                    failedResponse('Invalid answer status'),
-                    BAD_REQUEST,
-                );
-            }
             const user = <UserCredentials>req.user;
 
             let updatedAnswerValue;
 
-            if (user.id === answerValue.userId) {
+            if (user.id === existingAnswer.userId) {
                 logger.info('update answer for  question for user');
+                //TODO: should answer be updated after it is accepted?
                 updatedAnswerValue = {
                     ...existingAnswer,
                     answer: answerValue.answer,
+                    updatedAt: Date.now(),
                 };
             } else {
                 logger.info('accept user answer');
+                if (!answerValue.status) {
+                    return apiResponse(
+                        res,
+                        failedResponse('answer status required'),
+                        BAD_REQUEST,
+                    );
+                }
+                if (
+                    answerValue.status &&
+                    !Object.values(AnswerStatus).includes(answerValue.status)
+                ) {
+                    return apiResponse(
+                        res,
+                        failedResponse('Invalid answer status'),
+                        BAD_REQUEST,
+                    );
+                }
+
                 updatedAnswerValue = {
                     ...existingAnswer,
                     status: answerValue.status,
+                    updatedAt: Date.now(),
                 };
             }
 
@@ -211,8 +228,7 @@ export class AnswerController {
                 OK,
             );
         } catch (error) {
-            console.log(error);
-            logger.error('error while creating answer', {
+            logger.error('error while updating answer', {
                 meta: { ...error },
             });
             return apiResponse(

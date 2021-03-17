@@ -228,7 +228,7 @@ export function validateUpdateAnswer(answerInput: AnswerParams) {
     if (status && isEmpty(status.toString())) {
         errors.push({ status: 'answer status is missing' });
     } else if (status && !Object.values(AnswerStatus).includes(status)) {
-        errors.push({ id: 'Invalid answer status' });
+        errors.push({ status: 'Invalid answer status' });
     }
 
     return errors;
