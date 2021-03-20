@@ -12,6 +12,7 @@ export = {
             },
             rating: {
                 type: Sequelize.INTEGER,
+                defaultValue: 0,
                 allowNull: false,
             },
             questionId: {

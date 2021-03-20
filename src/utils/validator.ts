@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { isAlpha, isAlphanumeric, isEmail, isEmpty, isLength } from 'validator';
-import { JwtError, LoginCredentials, UserRegister } from '../types';
+import {
+    AnswerParams,
+    JwtError,
+    LoginCredentials,
+    QuestionParams,
+    UserRegister,
+    AnswerStatus,
+    QuestionRatingParams,
+    AnswerRatingParams,
+} from '../types';
 import { logger } from './logger';
 
 /**
@@ -138,4 +147,145 @@ export function removeEmpty(obj: object): any {
             }),
             {},
         );
+}
+
+/**
+ * validates if the client input to save a question user is valid
+ * @param {QuestionParams} question Question Model
+ * @returns {Array} array of errors found
+ */
+export function validateCreateQuestion(question: QuestionParams) {
+    const errors: any = [];
+
+    const { title = '', text = '' } = question;
+
+    if (isEmpty(title)) {
+        errors.push({ title: 'title is required' });
+    } else if (!isLength(title, { min: 50, max: 100 })) {
+        errors.push({ title: 'title should be from 5 to 15 characters long' });
+    }
+
+    if (isEmpty(text)) {
+        errors.push({ text: 'question text is Required' });
+    } else if (!isLength(text, { min: 50, max: 200 })) {
+        errors.push({ name: 'text cannot be less than 50 chars' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the client input to save a answer is valid
+ * @param {AnswerParams} answer Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateCreateAnswer(answerInput: AnswerParams) {
+    const errors: any = [];
+
+    const { answer, questionId } = answerInput;
+
+    if (isEmpty(answer)) {
+        errors.push({ answer: 'answer input is required' });
+    } else if (!isLength(answer, { min: 50, max: 200 })) {
+        errors.push({ name: 'answer cannot be less than 50 chars' });
+    }
+
+    if (isEmpty(questionId.toString())) {
+        errors.push({ questionId: 'question id is missing' });
+    } else if (!isNumber(questionId)) {
+        errors.push({ questionId: 'Question id supplied is not number' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the client input to update a answer is valid
+ * @param {AnswerParams} answer Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateUpdateAnswer(answerInput: AnswerParams) {
+    const errors: any = [];
+
+    const { answer = '', questionId, id, status } = answerInput;
+
+    if (answer && isEmpty(answer)) {
+        errors.push({ answer: 'answer input is empty' });
+    } else if (answer && !isLength(answer, { min: 50, max: 200 })) {
+        errors.push({ name: 'answer cannot be less than 50 chars' });
+    }
+
+    if (isEmpty(questionId.toString())) {
+        errors.push({ questionId: 'question id is missing' });
+    } else if (!isNumber(questionId)) {
+        errors.push({ questionId: 'Question id supplied is not number' });
+    }
+
+    if (id && isEmpty(id.toString())) {
+        errors.push({ id: 'answer id is missing' });
+    } else if (!isNumber(id)) {
+        errors.push({ id: 'answer id supplied is not number' });
+    }
+
+    if (status && isEmpty(status.toString())) {
+        errors.push({ status: 'answer status is missing' });
+    } else if (status && !Object.values(AnswerStatus).includes(status)) {
+        errors.push({ status: 'Invalid answer status' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the rate input to a question rating is valid
+ * @param {QuestionRatingParams} questionRating Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateRateQuestion(rateQuestionInput: QuestionRatingParams) {
+    const errors: any = [];
+
+    const { id, rating, questionId } = rateQuestionInput;
+
+    if (!isNumber(questionId)) {
+        errors.push({ questionId: 'Question id supplied is not number' });
+    }
+    if (id && !isNumber(id)) {
+        errors.push({ id: 'id supplied is not number' });
+    }
+    if (!isNumber(rating)) {
+        errors.push({ rating: 'rating supplied is not number' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the rate input to a question rating is valid
+ * @param {AnswerRatingParams} rateAnswerInput Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateRateAnswer(rateAnswerInput: AnswerRatingParams) {
+    const errors: any = [];
+
+    const { id, rating, answerId } = rateAnswerInput;
+
+    if (rating === undefined) {
+        errors.push({ rating: 'rating not supplied' });
+    }
+
+    if (answerId === undefined) {
+        errors.push({ answerId: 'answer id not supplied' });
+    }
+
+    if (!isNumber(answerId)) {
+        errors.push({ answerId: 'Answer id supplied is not number' });
+    }
+    if (id && !isNumber(id)) {
+        errors.push({ id: 'id supplied is not number' });
+    }
+    if (!isNumber(rating)) {
+        errors.push({ rating: 'rating supplied is not number' });
+    }
+
+    return errors;
 }

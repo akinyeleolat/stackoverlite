@@ -37,6 +37,7 @@ export function QuestionFactory(sequelize: Sequelize): QuestionStatic {
         title: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
         },
         description: {
             type: DataTypes.TEXT,

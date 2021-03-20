@@ -14,7 +14,7 @@ export interface UserRegister {
     id?: number;
     email: string;
     password: string;
-    password2: string;
+    password2?: string;
     firstName: string;
     middleName: string;
     lastName: string;
@@ -59,19 +59,6 @@ export interface LoginCredentials {
     password: string;
 }
 
-export const LOGIN_USER = 'user/login';
-export type LOGIN_USER = typeof LOGIN_USER;
-export const LOGIN_USER_SUCCESS = 'user/login-success';
-export type LOGIN_USER_SUCCESS = typeof LOGIN_USER_SUCCESS;
-export const LOGIN_USER_FAILED = 'user/login-failed';
-export type LOGIN_USER_FAILED = typeof LOGIN_USER_FAILED;
-export const REGISTER_USER = 'user/register';
-export type REGISTER_USER = typeof REGISTER_USER;
-export const REGISTER_USER_SUCCESS = 'user/register-success';
-export type REGISTER_USER_SUCCESS = typeof REGISTER_USER_SUCCESS;
-export const REGISTER_USER_FAILED = 'user/register-failed';
-export type REGISTER_USER_FAILED = typeof REGISTER_USER_FAILED;
-
 export interface AppRequest<B = any> extends Request {
     requestTime: number;
     body: B;
@@ -94,3 +81,83 @@ export interface EndPoint {
 
 export const EMAIL_EXISTS = 1;
 export type EMAIL_EXISTS = typeof EMAIL_EXISTS;
+
+export interface QuestionParams {
+    id?: number;
+    title: string;
+    slug?: string;
+    description?: string;
+    text: string;
+    userId?: number;
+}
+
+export interface AuthRequest extends Request {
+    user?: string | object;
+}
+
+export enum AnswerStatus {
+    pending,
+    accepted,
+}
+export interface AnswerParams {
+    id?: number;
+    answer: string;
+    userId: number;
+    questionId: number;
+    status?: string;
+    updatedAt?: number;
+}
+
+export interface AnswerValue {
+    id: number;
+    answer: string;
+    userId: number;
+    questionId: number;
+    status: string;
+}
+export interface UserCredentials {
+    id: number;
+    email: string;
+    password: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+}
+
+export interface QuestionRatingParams {
+    id?: number;
+    rating: number;
+    questionId: number;
+    updatedAt?: number;
+}
+
+export interface QuestionRatingValue {
+    id: number;
+    rating: number;
+    questionId: number;
+    updatedAt?: number;
+}
+
+export interface AnswerRatingParams {
+    id?: number;
+    rating: number;
+    answerId: number;
+    updatedAt?: number;
+}
+
+export interface AnswerRatingValue {
+    id: number;
+    rating: number;
+    answerId: number;
+    updatedAt?: number;
+}
+
+export interface QuestionDetails {
+    id?: number;
+    title: string;
+    slug?: string;
+    description?: string;
+    text: string;
+    userId?: number;
+    answer: string[];
+}

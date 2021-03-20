@@ -1,6 +1,8 @@
-# 🧰 Simple TypeScript Starter | 2020
+# 🧰 StackOverflow Lite
 
 
+# API Docs
+- https://documenter.getpostman.com/view/5081938/Tz5wVDqi
 ### Features
 
 - Minimal
@@ -10,6 +12,28 @@
 - Pre-commit hooks with Husky
 - VS Code debugger scripts
 - Local development with Nodemon
+- Sequelize
+- Sequelize-cli typescript
+
+## Application Set up
+Enviroment variables are set in `.env` files and the examples can be seen in `env.examples`.
+
+1. Create `.env` files in the root folder, and set the correct environment variables as stated in `env.examples`
+2. Open terminal and navigate to the root folder.
+3. Install all dependencies and also set up the `database` and `database migration` by running this command on the terminal
+
+    ```
+    - npm install
+    - npm run migration
+    - npm run seed
+    ```
+
+## Running the App (Development)
+1. Open terminal and navigate to the root folder.
+2. Run this command on terminal 
+```
+    npm run dev
+```
 
 ### Scripts
 

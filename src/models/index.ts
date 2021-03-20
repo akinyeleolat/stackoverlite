@@ -42,14 +42,14 @@ const Answer = AnswerFactory(dbConfig);
 const QuestionRating = QuestionRatingFactory(dbConfig);
 const AnswerRating = AnswerRatingFactory(dbConfig);
 
-Question.belongsTo(User);
-Answer.belongsTo(User);
-Answer.belongsTo(Question);
-Question.hasMany(Answer);
-QuestionRating.belongsTo(Question);
-Question.hasOne(QuestionRating);
-AnswerRating.belongsTo(Answer);
-Answer.hasOne(AnswerRating);
+Question.belongsTo(User, { foreignKey: 'userId' });
+Answer.belongsTo(User, { foreignKey: 'userId' });
+Answer.belongsTo(Question, { foreignKey: 'questionId' });
+Question.hasMany(Answer, { foreignKey: 'questionId' });
+QuestionRating.belongsTo(Question, { foreignKey: 'questionId' });
+Question.hasOne(QuestionRating, { foreignKey: 'questionId' });
+AnswerRating.belongsTo(Answer, { foreignKey: 'answerId' });
+Answer.hasOne(AnswerRating, { foreignKey: 'answerId' });
 
 Question.beforeCreate(newQuestion => {
     newQuestion.setDataValue('slug', createUniqueSlug(newQuestion.title));
