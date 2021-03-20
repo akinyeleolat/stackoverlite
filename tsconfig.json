@@ -18,6 +18,5 @@
 , "type.d.ts"  ],
   "exclude" : [
     "src/**/*.spec.ts"
-  ],
-  "files":["type.d.ts"]
+  ]
 }
