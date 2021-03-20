@@ -10,6 +10,8 @@
 - Pre-commit hooks with Husky
 - VS Code debugger scripts
 - Local development with Nodemon
+- Sequelize
+- Sequelize-cli typescript
 
 ### Scripts
 
