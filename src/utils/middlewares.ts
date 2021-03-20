@@ -16,6 +16,8 @@ import {
     validateLogin,
     validateUserRegistration,
     validateUpdateAnswer,
+    validateRateQuestion,
+    validateRateAnswer,
 } from './validator';
 
 import { validateToken } from '../utils/passport';
@@ -190,6 +192,62 @@ export function validateAnswerUpdate(
         req.body = removeEmpty(req.body);
 
         const valid = validateUpdateAnswer(req.body);
+
+        if (valid.length > 0) {
+            apiResponse<FailedResponse>(
+                res,
+                failedResponse(valid),
+                BAD_REQUEST,
+            );
+        } else {
+            next();
+        }
+    } catch (error) {
+        apiResponse<FailedResponse>(
+            res,
+            failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+            INTERNAL_SERVER_ERROR,
+        );
+    }
+}
+
+export function validateRatingQuestion(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    try {
+        req.body = removeEmpty(req.body);
+
+        const valid = validateRateQuestion(req.body);
+
+        if (valid.length > 0) {
+            apiResponse<FailedResponse>(
+                res,
+                failedResponse(valid),
+                BAD_REQUEST,
+            );
+        } else {
+            next();
+        }
+    } catch (error) {
+        apiResponse<FailedResponse>(
+            res,
+            failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+            INTERNAL_SERVER_ERROR,
+        );
+    }
+}
+
+export function validateRatingAnswer(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    try {
+        req.body = removeEmpty(req.body);
+
+        const valid = validateRateAnswer(req.body);
 
         if (valid.length > 0) {
             apiResponse<FailedResponse>(

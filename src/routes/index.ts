@@ -15,6 +15,8 @@ import {
     validateRegister,
     validatingLogin,
     verifyUser,
+    validateRatingQuestion,
+    validateRatingAnswer,
 } from '../utils/middlewares';
 
 export function routes(db: DB) {
@@ -37,8 +39,25 @@ export function routes(db: DB) {
         questionController.createQuestion,
     );
     api.get('/question', questionController.getAllQuestions);
+    api.get('/question/:id', questionController.getQuestionDataById);
     api.post('/answer', [validateAnswerInput], answerController.createAnswer);
-    api.patch('/answer', [validateAnswerUpdate], answerController.updateAnswer);
+    api.patch(
+        '/update_answer',
+        [validateAnswerUpdate],
+        answerController.updateAnswer,
+    );
+
+    api.post(
+        '/rate_question',
+        [validateRatingQuestion],
+        questionController.rateQuestion,
+    );
+
+    api.post(
+        '/rate_answer',
+        [validateRatingAnswer],
+        answerController.rateAnswer,
+    );
 
     return api;
 }

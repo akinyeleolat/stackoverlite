@@ -7,6 +7,8 @@ import {
     QuestionParams,
     UserRegister,
     AnswerStatus,
+    QuestionRatingParams,
+    AnswerRatingParams,
 } from '../types';
 import { logger } from './logger';
 
@@ -229,6 +231,60 @@ export function validateUpdateAnswer(answerInput: AnswerParams) {
         errors.push({ status: 'answer status is missing' });
     } else if (status && !Object.values(AnswerStatus).includes(status)) {
         errors.push({ status: 'Invalid answer status' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the rate input to a question rating is valid
+ * @param {QuestionRatingParams} questionRating Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateRateQuestion(rateQuestionInput: QuestionRatingParams) {
+    const errors: any = [];
+
+    const { id, rating, questionId } = rateQuestionInput;
+
+    if (!isNumber(questionId)) {
+        errors.push({ questionId: 'Question id supplied is not number' });
+    }
+    if (id && !isNumber(id)) {
+        errors.push({ id: 'id supplied is not number' });
+    }
+    if (!isNumber(rating)) {
+        errors.push({ rating: 'rating supplied is not number' });
+    }
+
+    return errors;
+}
+
+/**
+ * validates if the rate input to a question rating is valid
+ * @param {AnswerRatingParams} rateAnswerInput Asnwer Model
+ * @returns {Array} array of errors found
+ */
+export function validateRateAnswer(rateAnswerInput: AnswerRatingParams) {
+    const errors: any = [];
+
+    const { id, rating, answerId } = rateAnswerInput;
+
+    if (rating === undefined) {
+        errors.push({ rating: 'rating not supplied' });
+    }
+
+    if (answerId === undefined) {
+        errors.push({ answerId: 'answer id not supplied' });
+    }
+
+    if (!isNumber(answerId)) {
+        errors.push({ answerId: 'Answer id supplied is not number' });
+    }
+    if (id && !isNumber(id)) {
+        errors.push({ id: 'id supplied is not number' });
+    }
+    if (!isNumber(rating)) {
+        errors.push({ rating: 'rating supplied is not number' });
     }
 
     return errors;

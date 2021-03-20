@@ -3,7 +3,8 @@ import { DB } from '../models';
 import { Op } from 'sequelize';
 import { AnswerModel } from '../models/answer-model';
 import { QuestionModel } from '../models/question-model';
-import { AnswerParams } from '../types';
+import { AnswerRatingModel } from '../models/answer-rating-model';
+import { AnswerParams, AnswerRatingParams } from '../types';
 
 /**
  * @description Answer service
@@ -30,6 +31,8 @@ export class AnswerService {
         this.getAnswerByUser = this.getAnswerByUser.bind(this);
         this.getAnswerById = this.getAnswerById.bind(this);
         this.getQuestionById = this.getQuestionById.bind(this);
+        this.rateAnswer = this.rateAnswer.bind(this);
+        this.getRatingByAnswerId = this.getRatingByAnswerId.bind(this);
     }
 
     /**
@@ -101,6 +104,52 @@ export class AnswerService {
         questionId: number,
     ): Bluebird<QuestionModel | null> {
         const saved = await this.db.Question.findByPk(questionId);
+        return saved;
+    }
+
+    /**
+     * create or updates answer rating
+     * @public
+     * @method {rateAnswer}
+     * @memberof {AnswerService}
+     * @param {object} answerRating
+     * @returns {object} answer rating
+     */
+    public async rateAnswer(
+        answerRating: AnswerRatingParams,
+    ): Bluebird<AnswerRatingModel | null> {
+        let answerRatingValue;
+        if (answerRating.id !== undefined) {
+            await this.db.AnswerRating.update(answerRating, {
+                where: {
+                    id: answerRating.id,
+                },
+                returning: true,
+            });
+            answerRatingValue = await this.db.AnswerRating.findByPk(
+                answerRating.id,
+            );
+            return answerRatingValue;
+        }
+
+        answerRatingValue = await this.db.AnswerRating.create(answerRating);
+        return answerRatingValue;
+    }
+
+    /**
+     * looks for a rating with a `answerId`
+     * @public
+     * @method {getRatingByAnswerId}
+     * @memberof {AnswerService}
+     * @param {string} answerId
+     * @returns {Bluebird<AnswerRatingModel | null>} answer rating object incase the rating exists
+     */
+    public async getRatingByAnswerId(
+        answerId: number,
+    ): Bluebird<AnswerRatingModel | null> {
+        const saved = await this.db.AnswerRating.findOne({
+            where: { answerId },
+        });
         return saved;
     }
 }

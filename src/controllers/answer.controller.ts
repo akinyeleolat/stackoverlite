@@ -23,6 +23,8 @@ import {
     UserCredentials,
     AnswerValue,
     AnswerStatus,
+    AnswerRatingValue,
+    AnswerRatingParams,
 } from '../types';
 
 /**
@@ -40,6 +42,7 @@ export class AnswerController {
     public constructor(private answerService: AnswerService) {
         this.createAnswer = this.createAnswer.bind(this);
         this.updateAnswer = this.updateAnswer.bind(this);
+        this.rateAnswer = this.rateAnswer.bind(this);
     }
 
     /**
@@ -229,6 +232,81 @@ export class AnswerController {
             );
         } catch (error) {
             logger.error('error while updating answer', {
+                meta: { ...error },
+            });
+            return apiResponse(
+                res,
+                failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+                INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * add rating or update existing answer rating
+     * @Post
+     * @async
+     * @public
+     * @method {rateAnswer}
+     * @memberof {AnswerController}
+     * @param {Request} req
+     * @param {Response} res
+     * @param {NextFunction} next
+     * @returns {Promise<Response>} a promise of EndPointResponse
+     */
+    public async rateAnswer(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<Response> {
+        try {
+            logger.info('rate answer');
+
+            const ratingObject = <AnswerRatingParams>req.body;
+            const { answerId } = ratingObject;
+
+            const checkQuestionExist = await this.answerService.getQuestionById(
+                answerId,
+            );
+
+            if (!checkQuestionExist) {
+                logger.error(`question not found`);
+                return apiResponse(
+                    res,
+                    failedResponse('question not found'),
+                    NOT_FOUND,
+                );
+            }
+
+            const previousRating = await this.answerService.getRatingByAnswerId(
+                answerId,
+            );
+
+            const existingRating = <AnswerRatingValue>previousRating?.get();
+            let ratingDataValue;
+            if (existingRating) {
+                ratingDataValue = {
+                    ...ratingObject,
+                    id: existingRating.id,
+                    updatedAt: Date.now(),
+                };
+            } else {
+                ratingDataValue = { ...ratingObject };
+            }
+
+            const updatedRating = await this.answerService.rateAnswer(
+                ratingDataValue,
+            );
+
+            return apiResponse(
+                res,
+                successResponse({
+                    ...updatedRating?.get(),
+                }),
+                OK,
+            );
+        } catch (error) {
+            logger.error('error while getting all questions', {
                 meta: { ...error },
             });
             return apiResponse(

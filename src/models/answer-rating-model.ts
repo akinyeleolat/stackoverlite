@@ -32,6 +32,7 @@ export function AnswerRatingFactory(sequelize: Sequelize): AnswerRatingStatic {
         rating: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            defaultValue: 0,
         },
         answerId: {
             type: DataTypes.INTEGER,

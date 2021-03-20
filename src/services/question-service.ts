@@ -1,9 +1,10 @@
 import Bluebird from 'bluebird';
 import { DB } from '../models';
 import { Op } from 'sequelize';
-import { QuestionParams } from '../types';
+import { QuestionParams, QuestionRatingParams } from '../types';
 import { QuestionModel } from '../models/question-model';
 import { AnswerModel } from '../models/answer-model';
+import { QuestionRatingModel } from '../models/question-rating-model';
 
 /**
  * @description Question service
@@ -31,6 +32,9 @@ export class QuestionService {
         this.save = this.save.bind(this);
         this.getQuestionByTitle = this.getQuestionByTitle.bind(this);
         this.getQuestionById = this.getQuestionById.bind(this);
+        this.rateQuestion = this.rateQuestion.bind(this);
+        this.getRatingByQuestionId = this.getRatingByQuestionId.bind(this);
+        this.getQuestionDataById = this.getQuestionDataById.bind(this);
     }
 
     /**
@@ -44,7 +48,6 @@ export class QuestionService {
     public async getAll(): Bluebird<QuestionModel[]> {
         const res = await this.db.Question.findAll({
             attributes: ['id', 'slug', 'title', 'text', 'description'],
-            // include answer && user, question rating, answer rating, user
             include: [
                 {
                     all: true,
@@ -111,7 +114,101 @@ export class QuestionService {
      */
     public async getQuestionById(id: number): Bluebird<QuestionModel | null> {
         const saved = await this.db.Question.findByPk(id);
-        console.log(saved && Object.keys(saved.__proto__));
+        return saved;
+    }
+
+    /**
+     * looks for a question with `question` by `id`
+     * @public
+     * @method {getQuestionById}
+     * @memberof {QuestionService}
+     * @param {number} id question id
+     * @returns {Bluebird<QuestionModel | null>} answer object by id
+     */
+    public async getQuestionDataById(
+        id: number,
+    ): Bluebird<QuestionModel | null> {
+        const saved = await this.db.Question.findOne({
+            where: { id },
+            include: [
+                {
+                    model: this.db.Answer,
+                    as: 'Answers',
+                    attributes: ['id', 'answer', 'status'],
+                    include: [
+                        {
+                            model: this.db.AnswerRating,
+                            as: 'AnswerRating',
+                            attributes: ['id', 'rating'],
+                        },
+                        {
+                            model: this.db.User,
+                            as: 'User',
+                            attributes: ['id', 'firstName', 'lastName'],
+                        },
+                    ],
+                },
+                {
+                    model: this.db.QuestionRating,
+                    as: 'QuestionRating',
+                    attributes: ['id', 'rating'],
+                },
+                {
+                    model: this.db.User,
+                    as: 'User',
+                    attributes: ['id', 'firstName', 'lastName'],
+                },
+            ],
+        });
+
+        return saved;
+    }
+
+    /**
+     * create or updates answer rating
+     * @public
+     * @method {rateQuestion}
+     * @memberof {QuestionService}
+     * @param {object} questionRating
+     * @returns {object} questionrating
+     */
+    public async rateQuestion(
+        questionRating: QuestionRatingParams,
+    ): Bluebird<QuestionRatingModel | null> {
+        let questionRatingValue;
+        if (questionRating.id !== undefined) {
+            await this.db.QuestionRating.update(questionRating, {
+                where: {
+                    id: questionRating.id,
+                },
+                returning: true,
+            });
+            questionRatingValue = await this.db.QuestionRating.findByPk(
+                questionRating.id,
+            );
+            return questionRatingValue;
+        }
+
+        questionRatingValue = await this.db.QuestionRating.create(
+            questionRating,
+        );
+        return questionRatingValue;
+    }
+
+    /**
+     * looks for a rating with a `questionId`
+     * @public
+     * @method {getRatingByQuestionId}
+     * @memberof {QuestionService}
+     * @param {string} questionId
+     * @returns {Bluebird<QuestionRatingModel | null>} question rating object incase the rating exists
+     */
+    public async getRatingByQuestionId(
+        questionId: number,
+    ): Bluebird<QuestionRatingModel | null> {
+        const saved = await this.db.QuestionRating.findOne({
+            where: { questionId },
+        });
         return saved;
     }
 }

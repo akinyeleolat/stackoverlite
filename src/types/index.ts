@@ -123,3 +123,41 @@ export interface UserCredentials {
     middleName: string;
     lastName: string;
 }
+
+export interface QuestionRatingParams {
+    id?: number;
+    rating: number;
+    questionId: number;
+    updatedAt?: number;
+}
+
+export interface QuestionRatingValue {
+    id: number;
+    rating: number;
+    questionId: number;
+    updatedAt?: number;
+}
+
+export interface AnswerRatingParams {
+    id?: number;
+    rating: number;
+    answerId: number;
+    updatedAt?: number;
+}
+
+export interface AnswerRatingValue {
+    id: number;
+    rating: number;
+    answerId: number;
+    updatedAt?: number;
+}
+
+export interface QuestionDetails {
+    id?: number;
+    title: string;
+    slug?: string;
+    description?: string;
+    text: string;
+    userId?: number;
+    answer: string[];
+}

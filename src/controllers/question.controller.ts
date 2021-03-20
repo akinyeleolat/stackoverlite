@@ -17,8 +17,15 @@ import {
     successResponse,
 } from '../utils/response';
 import { logger } from '../utils/logger';
-import { AuthRequest, QuestionParams, UserRegister } from '../types';
+import {
+    AuthRequest,
+    QuestionParams,
+    QuestionRatingParams,
+    UserRegister,
+    QuestionRatingValue,
+} from '../types';
 import { createEllipsis, createUniqueSlug } from '../utils/modifier';
+import { isNumber } from '../utils/validator';
 
 /**
  * @description Question controller
@@ -35,6 +42,8 @@ export class QuestionController {
     public constructor(private questionService: QuestionService) {
         this.createQuestion = this.createQuestion.bind(this);
         this.getAllQuestions = this.getAllQuestions.bind(this);
+        this.rateQuestion = this.rateQuestion.bind(this);
+        this.getQuestionDataById = this.getQuestionDataById.bind(this);
     }
 
     /**
@@ -128,6 +137,120 @@ export class QuestionController {
             return apiResponse(res, successResponse(questions), OK);
         } catch (error) {
             logger.error('error while getting all questions', {
+                meta: { ...error },
+            });
+            return apiResponse(
+                res,
+                failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+                INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * add rating or update existing rating
+     * @Post
+     * @async
+     * @public
+     * @method {rateQuestion}
+     * @memberof {QuestionController}
+     * @param {Request} req
+     * @param {Response} res
+     * @param {NextFunction} next
+     * @returns {Promise<Response>} a promise of EndPointResponse
+     */
+    public async rateQuestion(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<Response> {
+        try {
+            logger.info('rate questions');
+
+            const ratingObject = <QuestionRatingParams>req.body;
+            const { questionId } = ratingObject;
+
+            const checkQuestionExist = await this.questionService.getQuestionById(
+                questionId,
+            );
+
+            if (!checkQuestionExist) {
+                logger.error(`question not found`);
+                return apiResponse(
+                    res,
+                    failedResponse('question not found'),
+                    NOT_FOUND,
+                );
+            }
+
+            const previousRating = await this.questionService.getRatingByQuestionId(
+                questionId,
+            );
+
+            const existingRating = <QuestionRatingValue>previousRating?.get();
+            let ratingDataValue;
+            if (existingRating) {
+                ratingDataValue = {
+                    ...ratingObject,
+                    id: existingRating.id,
+                    updatedAt: Date.now(),
+                };
+            } else {
+                ratingDataValue = { ...ratingObject };
+            }
+
+            const updatedRating = await this.questionService.rateQuestion(
+                ratingDataValue,
+            );
+
+            return apiResponse(
+                res,
+                successResponse({
+                    ...updatedRating?.get(),
+                }),
+                OK,
+            );
+        } catch (error) {
+            logger.error('error while getting all questions', {
+                meta: { ...error },
+            });
+            return apiResponse(
+                res,
+                failedResponse(getStatusText(INTERNAL_SERVER_ERROR)),
+                INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * Gets the skills types by skill id
+     * @public
+     * @Get
+     * @async
+     * @method {getSkills}
+     * @author `Tosin Akinyele`
+     * @memberof {SkillsController}
+     * @param {Request} `req`
+     * @param {Response} `res`
+     * @param {NextFunction} `next`
+     * @returns {Promise<Response>} `array` with all skills
+     */
+    public async getQuestionDataById(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ): Promise<Response> {
+        logger.info('get question by id');
+        try {
+            const questionId = req.params.id;
+            const types = await this.questionService.getQuestionDataById(
+                Number(questionId),
+            );
+
+            return apiResponse(res, successResponse(types), OK);
+        } catch (error) {
+            console.log(error);
+            logger.error('error while getting questions id', {
                 meta: { ...error },
             });
             return apiResponse(
