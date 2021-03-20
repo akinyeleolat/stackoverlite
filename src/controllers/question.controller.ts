@@ -249,7 +249,6 @@ export class QuestionController {
 
             return apiResponse(res, successResponse(types), OK);
         } catch (error) {
-            console.log(error);
             logger.error('error while getting questions id', {
                 meta: { ...error },
             });
